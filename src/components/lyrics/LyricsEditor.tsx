@@ -251,7 +251,7 @@ Words with the same color are part of the same rhyme scheme."
           </p>
           <button
             onClick={handleAddHighlight}
-            className="px-3 py-1.5 rounded bg-accent text-white text-[var(--fs-p-sm)] font-medium hover:bg-accent-hover transition-colors"
+            className="px-3 py-1.5 rounded bg-accent text-linen text-[var(--fs-p-sm)] font-medium hover:bg-accent-hover transition-colors"
           >
             Add to {selectedScheme}
           </button>

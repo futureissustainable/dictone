@@ -71,7 +71,7 @@ export function SchemeSelector() {
                   transition-all duration-[var(--duration-fast)]
                   ${
                     accentLevel === value
-                      ? 'bg-accent text-white'
+                      ? 'bg-accent text-linen'
                       : 'bg-muted text-muted-foreground hover:text-foreground'
                   }
                 `}
