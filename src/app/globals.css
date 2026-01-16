@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+/* Font faces */
+@font-face {
+  font-family: 'PP Mondwest';
+  src: url('/fonts/PPMondwest-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('/fonts/AlbertSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Colors */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+  --card: #18181b;
+  --card-hover: #1f1f23;
+
+  /* Rhyme scheme colors */
+  --rhyme-a: #ef4444;
+  --rhyme-b: #3b82f6;
+  --rhyme-c: #22c55e;
+  --rhyme-d: #f59e0b;
+  --rhyme-e: #ec4899;
+  --rhyme-f: #06b6d4;
+  --rhyme-g: #8b5cf6;
+  --rhyme-h: #f97316;
+
+  /* Accent levels */
+  --accent-normal: 0.4;
+  --accent-medium: 0.7;
+  --accent-heavy: 1;
+
+  /* Font sizes */
+  --fs-p-sm: 14px;
+  --fs-p-lg: 16px;
+  --fs-p-xl: 20px;
+  --fs-p-xxl: 24px;
+  --fs-h-sm: 24px;
+  --fs-h-lg: 32px;
+  --fs-h-xl: 52px;
+  --fs-h-xxl: 76px;
+
+  /* Spacing (8px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Animation */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  /* Fonts */
+  --font-headline: 'PP Mondwest', serif;
+  --font-body: 'Albert Sans', sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+
+  --color-rhyme-a: var(--rhyme-a);
+  --color-rhyme-b: var(--rhyme-b);
+  --color-rhyme-c: var(--rhyme-c);
+  --color-rhyme-d: var(--rhyme-d);
+  --color-rhyme-e: var(--rhyme-e);
+  --color-rhyme-f: var(--rhyme-f);
+  --color-rhyme-g: var(--rhyme-g);
+  --color-rhyme-h: var(--rhyme-h);
+
+  --font-headline: var(--font-headline);
+  --font-body: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: var(--fs-p-lg);
+  line-height: 1.6;
+}
+
+/* Typography utilities */
+.fs-p-sm { font-size: var(--fs-p-sm); }
+.fs-p-lg { font-size: var(--fs-p-lg); }
+.fs-p-xl { font-size: var(--fs-p-xl); }
+.fs-p-xxl { font-size: var(--fs-p-xxl); }
+.fs-h-sm { font-size: var(--fs-h-sm); font-family: var(--font-headline); }
+.fs-h-lg { font-size: var(--fs-h-lg); font-family: var(--font-headline); }
+.fs-h-xl { font-size: var(--fs-h-xl); font-family: var(--font-headline); }
+.fs-h-xxl { font-size: var(--fs-h-xxl); font-family: var(--font-headline); }
+
+/* Container utilities */
+.container-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.container-narrow {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container-page, .container-narrow {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+}
+
+@media (min-width: 768px) {
+  .container-page, .container-narrow {
+    padding-left: var(--space-10);
+    padding-right: var(--space-10);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page, .container-narrow {
+    padding-left: var(--space-12);
+    padding-right: var(--space-12);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Rhyme highlight styles */
+.rhyme-highlight {
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: 0 1px;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.rhyme-highlight:hover {
+  filter: brightness(1.2);
+}
+
+/* Accent level modifiers */
+.accent-normal { opacity: 0.5; }
+.accent-medium { opacity: 0.75; }
+.accent-heavy { opacity: 1; }
+
+/* Selection styling */
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Textarea styling */
+textarea {
+  font-family: var(--font-body);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--ease-out);
+}
+
+.animate-slide-in {
+  animation: slideIn var(--duration-normal) var(--ease-out);
+}
+
+.animate-pulse {
+  animation: pulse 2s var(--ease-standard) infinite;
+}
