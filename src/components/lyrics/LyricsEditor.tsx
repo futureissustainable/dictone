@@ -2,7 +2,6 @@
 
 import React, { useRef, useCallback, useState, useLayoutEffect } from 'react';
 import { useAppStore } from '@/store';
-import type { RhymeWord } from '@/lib/types';
 import { RHYME_COLORS, ACCENT_OPACITY } from '@/lib/types';
 
 export function LyricsEditor() {
@@ -22,6 +21,7 @@ export function LyricsEditor() {
   const [selection, setSelection] = useState<{ start: number; end: number; word: string } | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [scrollOffset, setScrollOffset] = useState({ top: 0, left: 0 });
   const [highlightRects, setHighlightRects] = useState<Array<{
     top: number;
     left: number;
@@ -34,21 +34,38 @@ export function LyricsEditor() {
 
   // Calculate highlight positions using a hidden measurement div
   useLayoutEffect(() => {
-    if (!measureRef.current || !lyrics) {
+    if (!measureRef.current || !textareaRef.current) {
+      setHighlightRects([]);
+      return;
+    }
+
+    // Use current lyrics from textarea to ensure sync
+    const currentLyrics = lyrics;
+    if (!currentLyrics) {
       setHighlightRects([]);
       return;
     }
 
     const measure = measureRef.current;
+    const textarea = textareaRef.current;
     const rects: typeof highlightRects = [];
+
+    // Get textarea's padding
+    const computedStyle = window.getComputedStyle(textarea);
+    const paddingTop = parseFloat(computedStyle.paddingTop);
+    const paddingLeft = parseFloat(computedStyle.paddingLeft);
 
     // Sort rhyme words by position
     const sortedWords = [...rhymeWords].sort((a, b) => a.startIndex - b.startIndex);
 
     sortedWords.forEach((rhymeWord) => {
-      // Create a range to measure the word position
-      const textBefore = lyrics.substring(0, rhymeWord.startIndex);
-      const word = lyrics.substring(rhymeWord.startIndex, rhymeWord.endIndex);
+      // Validate the rhyme word positions are still valid
+      if (rhymeWord.startIndex >= currentLyrics.length || rhymeWord.endIndex > currentLyrics.length) {
+        return;
+      }
+
+      const textBefore = currentLyrics.substring(0, rhymeWord.startIndex);
+      const word = currentLyrics.substring(rhymeWord.startIndex, rhymeWord.endIndex);
 
       // Clear and rebuild measurement div
       measure.textContent = '';
@@ -67,9 +84,10 @@ export function LyricsEditor() {
       const measureRect = measure.getBoundingClientRect();
       const wordRect = wordSpan.getBoundingClientRect();
 
+      // Position relative to measure div content area, then add textarea padding
       rects.push({
-        top: wordRect.top - measureRect.top,
-        left: wordRect.left - measureRect.left,
+        top: wordRect.top - measureRect.top + paddingTop,
+        left: wordRect.left - measureRect.left + paddingLeft,
         width: wordRect.width,
         height: wordRect.height,
         color: RHYME_COLORS[rhymeWord.scheme],
@@ -83,10 +101,11 @@ export function LyricsEditor() {
 
   // Sync scroll between textarea and highlight overlay
   const handleScroll = useCallback(() => {
-    if (textareaRef.current && measureRef.current) {
-      const scrollTop = textareaRef.current.scrollTop;
-      const scrollLeft = textareaRef.current.scrollLeft;
-      measureRef.current.style.transform = `translate(${-scrollLeft}px, ${-scrollTop}px)`;
+    if (textareaRef.current) {
+      setScrollOffset({
+        top: textareaRef.current.scrollTop,
+        left: textareaRef.current.scrollLeft,
+      });
     }
   }, []);
 
@@ -165,16 +184,16 @@ export function LyricsEditor() {
 
   return (
     <div className="relative h-full overflow-hidden">
-      {/* Hidden div for measuring text positions - must match textarea exactly */}
+      {/* Hidden div for measuring text positions - no padding, we add it in calculation */}
       <div
         ref={measureRef}
         aria-hidden="true"
-        className="absolute top-0 left-0 p-4 whitespace-pre-wrap break-words pointer-events-none opacity-0"
+        className="absolute top-0 left-0 whitespace-pre-wrap break-words pointer-events-none opacity-0"
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
           lineHeight: '1.5',
-          width: '100%',
+          width: 'calc(100% - 32px)', // Account for textarea padding on both sides
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
         }}
@@ -182,10 +201,13 @@ export function LyricsEditor() {
 
       {/* Highlight backgrounds layer - positioned behind text */}
       <div
-        className="absolute inset-0 p-4 pointer-events-none overflow-hidden"
+        className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{ zIndex: 1 }}
       >
-        <div style={{ position: 'relative' }}>
+        <div style={{
+          position: 'relative',
+          transform: `translate(${-scrollOffset.left}px, ${-scrollOffset.top}px)`
+        }}>
           {highlightRects.map((rect, idx) => (
             <div
               key={`bg-${idx}`}
@@ -234,23 +256,28 @@ Words with the same color are part of the same rhyme scheme."
 
       {/* Clickable areas for removing highlights */}
       <div
-        className="absolute inset-0 p-4 pointer-events-none overflow-hidden"
+        className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{ zIndex: 3 }}
       >
-        {highlightRects.map((rect, idx) => (
-          <div
-            key={`click-${idx}`}
-            onClick={(e) => handleHighlightClick(rect.startIndex, e)}
-            className="absolute pointer-events-auto cursor-pointer hover:ring-2 hover:ring-white/50 rounded"
-            title="Click to remove highlight"
-            style={{
-              top: rect.top - 2,
-              left: rect.left - 2,
-              width: rect.width + 4,
-              height: rect.height + 2,
-            }}
-          />
-        ))}
+        <div style={{
+          position: 'relative',
+          transform: `translate(${-scrollOffset.left}px, ${-scrollOffset.top}px)`
+        }}>
+          {highlightRects.map((rect, idx) => (
+            <div
+              key={`click-${idx}`}
+              onClick={(e) => handleHighlightClick(rect.startIndex, e)}
+              className="absolute pointer-events-auto cursor-pointer hover:ring-2 hover:ring-white/50 rounded"
+              title="Click to remove highlight"
+              style={{
+                top: rect.top - 2,
+                left: rect.left - 2,
+                width: rect.width + 4,
+                height: rect.height + 2,
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Selection tooltip */}
