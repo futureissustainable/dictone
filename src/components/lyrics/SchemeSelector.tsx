@@ -22,7 +22,6 @@ export function SchemeSelector() {
     setAccentLevel,
     autoHighlight,
     setAutoHighlight,
-    runAutoHighlight,
     clearRhymeWords,
     rhymeWords,
   } = useAppStore();

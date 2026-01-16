@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useRef, useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useCallback, useMemo, useState } from 'react';
 import { useAppStore } from '@/store';
-import type { RhymeWord, RhymeSchemeColor, AccentLevel } from '@/lib/types';
-import { extractWords } from '@/lib/rhyme-utils';
+import type { RhymeWord } from '@/lib/types';
 import { RHYME_COLORS, ACCENT_OPACITY } from '@/lib/types';
 
 export function LyricsEditor() {
@@ -248,7 +247,7 @@ Words with the same color are part of the same rhyme scheme."
           }}
         >
           <p className="text-[var(--fs-p-sm)] text-muted-foreground mb-2">
-            Add "{selection.word}" to scheme:
+            Add &quot;{selection.word}&quot; to scheme:
           </p>
           <button
             onClick={handleAddHighlight}

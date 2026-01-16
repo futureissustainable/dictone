@@ -16,7 +16,6 @@ export function SuggestionsPanel() {
     selectedWord,
     setLyrics,
     lyrics,
-    fetchSuggestionsForWord,
   } = useAppStore();
 
   const [searchWord, setSearchWord] = useState('');
@@ -40,7 +39,7 @@ export function SuggestionsPanel() {
         results = await fetchSoundsLike(searchWord);
       }
       setLocalSuggestions(results);
-    } catch (error) {
+    } catch {
       setLocalSuggestions([]);
     }
     setIsLocalLoading(false);

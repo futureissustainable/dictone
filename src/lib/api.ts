@@ -122,16 +122,11 @@ export async function fetchRhymesBySyllables(
 // Lyrics.ovh API for COPYCAT feature
 const LYRICS_OVH_API = 'https://api.lyrics.ovh/v1';
 
-export async function fetchArtistLyrics(artist: string): Promise<string | null> {
+export async function fetchArtistLyrics(_artist: string): Promise<string | null> {
   // Note: lyrics.ovh requires song name, so we'll use a different approach
   // We'll try to get lyrics for popular songs by the artist
-  try {
-    // This is a simplified approach - in production you'd want to use a more comprehensive API
-    return null;
-  } catch (error) {
-    console.error('Error fetching artist lyrics:', error);
-    return null;
-  }
+  // This is a simplified approach - in production you'd want to use a more comprehensive API
+  return null;
 }
 
 export async function fetchSongLyrics(artist: string, song: string): Promise<string | null> {
@@ -159,7 +154,6 @@ export async function searchLyricsForWord(
   songs: string[]
 ): Promise<ArtistLyric[]> {
   const results: ArtistLyric[] = [];
-  const wordLower = word.toLowerCase();
   const wordRegex = new RegExp(`\\b${word}\\b`, 'i');
 
   for (const song of songs) {
@@ -178,7 +172,7 @@ export async function searchLyricsForWord(
           });
         }
       }
-    } catch (error) {
+    } catch {
       // Skip failed requests
       continue;
     }
@@ -189,7 +183,7 @@ export async function searchLyricsForWord(
 
 // Alternative: Use Genius API hints (for song discovery)
 // Note: Full Genius API requires API key
-export async function searchGeniusSongs(artist: string, query: string): Promise<string[]> {
+export async function searchGeniusSongs(artist: string, _query?: string): Promise<string[]> {
   // This would require a Genius API key in production
   // For now, return popular songs for known artists
   const popularSongs: Record<string, string[]> = {

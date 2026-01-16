@@ -118,7 +118,7 @@ export function CopycatSearch() {
         {copycatResults.length > 0 ? (
           <div className="space-y-3">
             <p className="text-[var(--fs-p-sm)] text-muted-foreground mb-4">
-              Found {copycatResults.length} bars containing "{copycatSearchWord}"
+              Found {copycatResults.length} bars containing &quot;{copycatSearchWord}&quot;
             </p>
 
             {copycatResults.map((result, idx) => (
@@ -171,7 +171,7 @@ export function CopycatSearch() {
             <MusicNote size={48} className="mb-4 opacity-50" />
             <p className="text-[var(--fs-p-lg)]">Search for a word to find matching bars</p>
             <p className="text-[var(--fs-p-sm)] mt-2 max-w-md">
-              Select an artist and enter a word to discover how they've used it in their songs
+              Select an artist and enter a word to discover how they&apos;ve used it in their songs
             </p>
           </div>
         ) : null}

@@ -174,7 +174,7 @@ export const useAppStore = create<AppState>()(
           }
 
           set({ copycatResults: results, isCopycatLoading: false });
-        } catch (error) {
+        } catch {
           set({
             copycatError: 'Failed to search lyrics. Please try again.',
             isCopycatLoading: false

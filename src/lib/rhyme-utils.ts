@@ -1,12 +1,5 @@
 import type { RhymeWord, RhymeSchemeColor, AccentLevel, LineWord } from './types';
 
-// CMU Dictionary phoneme mappings for rhyme detection
-// Last phoneme patterns that typically rhyme
-const VOWEL_SOUNDS = [
-  'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'EH', 'ER', 'EY', 'IH',
-  'IY', 'OW', 'OY', 'UH', 'UW'
-];
-
 // Get ending phonemes from a word (simplified approach)
 function getEndingSound(word: string): string {
   const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
@@ -254,7 +247,7 @@ export function detectInternalRhymes(
 }
 
 // Determine accent level based on pronunciation emphasis
-export function determineAccentLevel(word: string, context: string): AccentLevel {
+export function determineAccentLevel(word: string, _context?: string): AccentLevel {
   // Simple heuristic: longer words or words at end of lines are heavier
   const syllables = countSyllables(word);
 
