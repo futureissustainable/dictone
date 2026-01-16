@@ -25,7 +25,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6">
+      <footer className="border-t border-border py-6 bg-muted mt-auto">
         <div className="container-page">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-[var(--fs-p-sm)] text-muted-foreground">
             <p className="italic">Great artists steal.</p>
