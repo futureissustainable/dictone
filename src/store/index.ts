@@ -7,7 +7,7 @@ import type {
   RhymeSuggestion,
   ArtistLyric
 } from '@/lib/types';
-import { detectRhymeSchemes } from '@/lib/rhyme-utils';
+import { detectRhymeSchemes, recalculateRhymeWordIndices } from '@/lib/rhyme-utils';
 import { fetchRhymes, searchLyricsForWord, searchGeniusSongs } from '@/lib/api';
 
 interface AppState {
@@ -30,10 +30,14 @@ interface AppState {
   setSelectedScheme: (scheme: RhymeSchemeColor) => void;
   accentLevel: AccentLevel;
   setAccentLevel: (level: AccentLevel) => void;
+  focusedScheme: RhymeSchemeColor | null;
+  setFocusedScheme: (scheme: RhymeSchemeColor | null) => void;
 
   // Auto-highlight
   autoHighlight: boolean;
   setAutoHighlight: (enabled: boolean) => void;
+  rhymeSensitivity: number; // 1.0-3.0, higher = stricter
+  setRhymeSensitivity: (sensitivity: number) => void;
   runAutoHighlight: () => void;
 
   // Suggestions
@@ -68,9 +72,15 @@ export const useAppStore = create<AppState>()(
 
       // Lyrics Writer State
       lyrics: '',
-      setLyrics: (lyrics) => {
-        set({ lyrics });
-        if (get().autoHighlight) {
+      setLyrics: (newLyrics) => {
+        const { lyrics: oldLyrics, rhymeWords, autoHighlight } = get();
+
+        // Recalculate indices for existing highlights to keep them aligned with the text
+        const updatedRhymeWords = recalculateRhymeWordIndices(oldLyrics, newLyrics, rhymeWords);
+
+        set({ lyrics: newLyrics, rhymeWords: updatedRhymeWords });
+
+        if (autoHighlight) {
           get().runAutoHighlight();
         }
       },
@@ -97,6 +107,8 @@ export const useAppStore = create<AppState>()(
       setSelectedScheme: (selectedScheme) => set({ selectedScheme }),
       accentLevel: 'heavy',
       setAccentLevel: (accentLevel) => set({ accentLevel }),
+      focusedScheme: null,
+      setFocusedScheme: (focusedScheme) => set({ focusedScheme }),
 
       // Auto-highlight
       autoHighlight: true,
@@ -106,10 +118,17 @@ export const useAppStore = create<AppState>()(
           get().runAutoHighlight();
         }
       },
+      rhymeSensitivity: 2.0, // Default threshold (1.0 = loose, 3.0 = strict)
+      setRhymeSensitivity: (rhymeSensitivity) => {
+        set({ rhymeSensitivity });
+        if (get().autoHighlight) {
+          get().runAutoHighlight();
+        }
+      },
       runAutoHighlight: () => {
-        const { lyrics, rhymeWords } = get();
+        const { lyrics, rhymeWords, rhymeSensitivity } = get();
         const manualWords = rhymeWords.filter(w => w.isManual);
-        const detected = detectRhymeSchemes(lyrics, manualWords);
+        const detected = detectRhymeSchemes(lyrics, manualWords, rhymeSensitivity);
         set({ rhymeWords: detected });
       },
 
@@ -188,6 +207,7 @@ export const useAppStore = create<AppState>()(
         lyrics: state.lyrics,
         rhymeWords: state.rhymeWords,
         autoHighlight: state.autoHighlight,
+        rhymeSensitivity: state.rhymeSensitivity,
         copycatArtist: state.copycatArtist,
       }),
     }

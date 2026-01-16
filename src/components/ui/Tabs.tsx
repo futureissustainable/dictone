@@ -6,6 +6,7 @@ interface Tab {
   id: string;
   label: string;
   icon?: React.ReactNode;
+  useHeadlineFont?: boolean;
 }
 
 interface TabsProps {
@@ -31,6 +32,7 @@ export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
                 : 'text-muted-foreground hover:text-foreground'
             }
           `}
+          style={tab.useHeadlineFont ? { fontFamily: 'var(--font-headline)' } : undefined}
         >
           {tab.icon}
           {tab.label}

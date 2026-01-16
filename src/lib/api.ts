@@ -62,6 +62,46 @@ export async function fetchSoundsLike(word: string, maxResults = 30): Promise<Rh
   }
 }
 
+// Fetch synonyms for a word
+export async function fetchSynonyms(word: string, maxResults = 30): Promise<RhymeSuggestion[]> {
+  try {
+    const response = await fetch(
+      `${DATAMUSE_API}/words?rel_syn=${encodeURIComponent(word)}&max=${maxResults}&md=s`
+    );
+    const words: DatamuseWord[] = await response.json();
+
+    return words.map(item => ({
+      word: item.word,
+      score: item.score || 0,
+      numSyllables: item.numSyllables,
+      tags: item.tags,
+    }));
+  } catch (error) {
+    console.error('Error fetching synonyms:', error);
+    return [];
+  }
+}
+
+// Fetch all rhymes with scores (for modal view)
+export async function fetchAllRhymesWithScores(word: string, maxResults = 200): Promise<RhymeSuggestion[]> {
+  try {
+    const response = await fetch(
+      `${DATAMUSE_API}/words?rel_rhy=${encodeURIComponent(word)}&max=${maxResults}&md=s`
+    );
+    const words: DatamuseWord[] = await response.json();
+
+    return words.map(item => ({
+      word: item.word,
+      score: item.score || 0,
+      numSyllables: item.numSyllables,
+      tags: item.tags,
+    }));
+  } catch (error) {
+    console.error('Error fetching all rhymes:', error);
+    return [];
+  }
+}
+
 // Fetch words with similar meaning that also rhyme
 export async function fetchRhymesWithMeaning(
   rhymeWord: string,
