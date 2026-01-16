@@ -99,7 +99,7 @@ export const useAppStore = create<AppState>()(
       setAccentLevel: (accentLevel) => set({ accentLevel }),
 
       // Auto-highlight
-      autoHighlight: false,
+      autoHighlight: true,
       setAutoHighlight: (autoHighlight) => {
         set({ autoHighlight });
         if (autoHighlight) {
