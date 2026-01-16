@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback, useMemo, useState } from 'react';
+import React, { useRef, useCallback, useState, useLayoutEffect } from 'react';
 import { useAppStore } from '@/store';
 import type { RhymeWord } from '@/lib/types';
 import { RHYME_COLORS, ACCENT_OPACITY } from '@/lib/types';
@@ -18,16 +18,75 @@ export function LyricsEditor() {
   } = useAppStore();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<{ start: number; end: number; word: string } | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [highlightRects, setHighlightRects] = useState<Array<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+    color: string;
+    opacity: number;
+    startIndex: number;
+  }>>([]);
 
-  // Sync scroll between textarea and overlay
+  // Calculate highlight positions using a hidden measurement div
+  useLayoutEffect(() => {
+    if (!measureRef.current || !lyrics) {
+      setHighlightRects([]);
+      return;
+    }
+
+    const measure = measureRef.current;
+    const rects: typeof highlightRects = [];
+
+    // Sort rhyme words by position
+    const sortedWords = [...rhymeWords].sort((a, b) => a.startIndex - b.startIndex);
+
+    sortedWords.forEach((rhymeWord) => {
+      // Create a range to measure the word position
+      const textBefore = lyrics.substring(0, rhymeWord.startIndex);
+      const word = lyrics.substring(rhymeWord.startIndex, rhymeWord.endIndex);
+
+      // Clear and rebuild measurement div
+      measure.textContent = '';
+
+      // Add text before the word
+      const beforeSpan = document.createElement('span');
+      beforeSpan.textContent = textBefore;
+      measure.appendChild(beforeSpan);
+
+      // Add the word we want to measure
+      const wordSpan = document.createElement('span');
+      wordSpan.textContent = word;
+      measure.appendChild(wordSpan);
+
+      // Get the word's bounding rect relative to the measure div
+      const measureRect = measure.getBoundingClientRect();
+      const wordRect = wordSpan.getBoundingClientRect();
+
+      rects.push({
+        top: wordRect.top - measureRect.top,
+        left: wordRect.left - measureRect.left,
+        width: wordRect.width,
+        height: wordRect.height,
+        color: RHYME_COLORS[rhymeWord.scheme],
+        opacity: ACCENT_OPACITY[rhymeWord.accentLevel],
+        startIndex: rhymeWord.startIndex,
+      });
+    });
+
+    setHighlightRects(rects);
+  }, [lyrics, rhymeWords]);
+
+  // Sync scroll between textarea and highlight overlay
   const handleScroll = useCallback(() => {
-    if (textareaRef.current && overlayRef.current) {
-      overlayRef.current.scrollTop = textareaRef.current.scrollTop;
-      overlayRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    if (textareaRef.current && measureRef.current) {
+      const scrollTop = textareaRef.current.scrollTop;
+      const scrollLeft = textareaRef.current.scrollLeft;
+      measureRef.current.style.transform = `translate(${-scrollLeft}px, ${-scrollTop}px)`;
     }
   }, []);
 
@@ -51,7 +110,6 @@ export function LyricsEditor() {
         const lineIndex = lines.length - 1;
         const charIndex = lines[lineIndex].length;
 
-        // Rough calculation for position
         const lineHeight = 24;
         const charWidth = 9.6;
         const x = charIndex * charWidth + 16;
@@ -60,7 +118,6 @@ export function LyricsEditor() {
         setTooltipPosition({ x: Math.min(x, 300), y });
         setShowTooltip(true);
 
-        // Fetch suggestions for the selected word
         fetchSuggestionsForWord(selectedText);
       }
     } else {
@@ -69,17 +126,16 @@ export function LyricsEditor() {
     }
   }, [lyrics, fetchSuggestionsForWord]);
 
-  // Handle clicking on highlighted word to remove
-  const handleHighlightClick = useCallback((rhymeWord: RhymeWord, e: React.MouseEvent) => {
+  // Handle clicking on highlight to remove
+  const handleHighlightClick = useCallback((startIndex: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    removeRhymeWord(rhymeWord.startIndex);
+    removeRhymeWord(startIndex);
   }, [removeRhymeWord]);
 
   // Add rhyme highlight to selected word
   const handleAddHighlight = useCallback(() => {
     if (selection) {
-      // Find the exact word boundaries
       const lines = lyrics.split('\n');
       let globalIndex = 0;
       let lineIndex = 0;
@@ -89,7 +145,7 @@ export function LyricsEditor() {
           lineIndex = i;
           break;
         }
-        globalIndex += lines[i].length + 1; // +1 for newline
+        globalIndex += lines[i].length + 1;
       }
 
       addRhymeWord({
@@ -107,76 +163,47 @@ export function LyricsEditor() {
     }
   }, [selection, selectedScheme, accentLevel, lyrics, addRhymeWord]);
 
-  // Render the highlighted overlay - this shows ALL text with highlights applied
-  const renderHighlightedText = useMemo(() => {
-    if (!lyrics) return null;
-
-    // Sort rhyme words by start index
-    const sortedWords = [...rhymeWords].sort((a, b) => a.startIndex - b.startIndex);
-
-    const elements: React.ReactNode[] = [];
-    let lastIndex = 0;
-
-    sortedWords.forEach((rhymeWord, idx) => {
-      // Add text before this highlight (in normal foreground color)
-      if (rhymeWord.startIndex > lastIndex) {
-        elements.push(
-          <span key={`text-${idx}`} className="text-foreground">
-            {lyrics.substring(lastIndex, rhymeWord.startIndex)}
-          </span>
-        );
-      }
-
-      // Add highlighted word
-      const color = RHYME_COLORS[rhymeWord.scheme];
-      const opacity = ACCENT_OPACITY[rhymeWord.accentLevel];
-
-      elements.push(
-        <span
-          key={`highlight-${idx}`}
-          className="rhyme-highlight cursor-pointer relative group"
-          style={{
-            backgroundColor: color,
-            opacity,
-            color: '#fff',
-          }}
-          title={`Scheme ${rhymeWord.scheme} - Click to remove`}
-        >
-          {lyrics.substring(rhymeWord.startIndex, rhymeWord.endIndex)}
-        </span>
-      );
-
-      lastIndex = rhymeWord.endIndex;
-    });
-
-    // Add remaining text (in normal foreground color)
-    if (lastIndex < lyrics.length) {
-      elements.push(
-        <span key="text-end" className="text-foreground">
-          {lyrics.substring(lastIndex)}
-        </span>
-      );
-    }
-
-    return elements;
-  }, [lyrics, rhymeWords]);
-
   return (
-    <div className="relative h-full">
-      {/* Visible text overlay - shows text with highlights */}
+    <div className="relative h-full overflow-hidden">
+      {/* Hidden div for measuring text positions - must match textarea exactly */}
       <div
-        ref={overlayRef}
-        className="absolute inset-0 p-4 overflow-auto whitespace-pre-wrap break-words pointer-events-none"
+        ref={measureRef}
+        aria-hidden="true"
+        className="absolute top-0 left-0 p-4 whitespace-pre-wrap break-words pointer-events-none opacity-0"
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
           lineHeight: '1.5',
+          width: '100%',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
         }}
+      />
+
+      {/* Highlight backgrounds layer - positioned behind text */}
+      <div
+        className="absolute inset-0 p-4 pointer-events-none overflow-hidden"
+        style={{ zIndex: 1 }}
       >
-        {renderHighlightedText}
+        <div style={{ position: 'relative' }}>
+          {highlightRects.map((rect, idx) => (
+            <div
+              key={`bg-${idx}`}
+              className="absolute rounded"
+              style={{
+                top: rect.top - 2,
+                left: rect.left - 2,
+                width: rect.width + 4,
+                height: rect.height + 2,
+                backgroundColor: rect.color,
+                opacity: rect.opacity,
+              }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Invisible textarea for input - text is transparent, only caret shows */}
+      {/* Main textarea - visible text, editable */}
       <textarea
         ref={textareaRef}
         value={lyrics}
@@ -184,6 +211,7 @@ export function LyricsEditor() {
         onScroll={handleScroll}
         onSelect={handleSelect}
         onMouseUp={handleSelect}
+        onKeyUp={handleSelect}
         placeholder="Start writing your lyrics here...
 
 Select any word to highlight it with a rhyme scheme color.
@@ -192,55 +220,47 @@ Words with the same color are part of the same rhyme scheme."
           w-full h-full p-4 resize-none
           bg-transparent border-none outline-none
           whitespace-pre-wrap break-words
-          relative z-10
+          relative
         "
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
           lineHeight: '1.5',
-          color: 'transparent',
+          color: 'var(--foreground)',
           caretColor: 'var(--accent)',
+          zIndex: 2,
         }}
       />
 
-      {/* Clickable overlay for removing highlights */}
+      {/* Clickable areas for removing highlights */}
       <div
-        className="absolute inset-0 p-4 overflow-hidden pointer-events-none z-20"
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--fs-p-lg)',
-          lineHeight: '1.5',
-        }}
+        className="absolute inset-0 p-4 pointer-events-none overflow-hidden"
+        style={{ zIndex: 3 }}
       >
-        {rhymeWords.map((rhymeWord, idx) => {
-          const textBefore = lyrics.substring(0, rhymeWord.startIndex);
-          const lines = textBefore.split('\n');
-          const lineIndex = lines.length - 1;
-          const charOffset = lines[lineIndex].length;
-
-          return (
-            <span
-              key={`click-${idx}`}
-              onClick={(e) => handleHighlightClick(rhymeWord, e)}
-              className="pointer-events-auto cursor-pointer absolute"
-              style={{
-                top: lineIndex * 24 + 16,
-                left: charOffset * 9.6 + 16,
-                width: (rhymeWord.endIndex - rhymeWord.startIndex) * 9.6,
-                height: 24,
-              }}
-            />
-          );
-        })}
+        {highlightRects.map((rect, idx) => (
+          <div
+            key={`click-${idx}`}
+            onClick={(e) => handleHighlightClick(rect.startIndex, e)}
+            className="absolute pointer-events-auto cursor-pointer hover:ring-2 hover:ring-white/50 rounded"
+            title="Click to remove highlight"
+            style={{
+              top: rect.top - 2,
+              left: rect.left - 2,
+              width: rect.width + 4,
+              height: rect.height + 2,
+            }}
+          />
+        ))}
       </div>
 
       {/* Selection tooltip */}
       {showTooltip && selection && (
         <div
-          className="absolute z-30 bg-card border border-border rounded-lg shadow-xl p-2 animate-fade-in"
+          className="absolute bg-card border border-border rounded-lg shadow-xl p-2 animate-fade-in"
           style={{
             top: tooltipPosition.y + 8,
             left: Math.min(tooltipPosition.x, 200),
+            zIndex: 10,
           }}
         >
           <p className="text-[var(--fs-p-sm)] text-muted-foreground mb-2">
