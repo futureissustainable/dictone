@@ -28,8 +28,8 @@ export default function Home() {
       <footer className="border-t border-border py-6">
         <div className="container-page">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-[var(--fs-p-sm)] text-muted-foreground">
-            <p>Built with Datamuse API for rhyme suggestions</p>
-            <p>dictone.com</p>
+            <p className="italic">Great artists steal.</p>
+            <p>DICTONE</p>
           </div>
         </div>
       </footer>

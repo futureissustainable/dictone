@@ -26,15 +26,20 @@ export function Header() {
       <div className="container-page py-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-              <span className="text-white font-bold text-xl" style={{ fontFamily: 'var(--font-headline)' }}>
-                D
-              </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
+                <span className="text-white font-bold text-xl" style={{ fontFamily: 'var(--font-headline)' }}>
+                  D
+                </span>
+              </div>
+              <h1 className="fs-h-sm tracking-wide" style={{ fontFamily: 'var(--font-headline)' }}>
+                DICTONE
+              </h1>
             </div>
-            <h1 className="fs-h-sm" style={{ fontFamily: 'var(--font-headline)' }}>
-              Dictone
-            </h1>
+            <span className="hidden md:block text-[var(--fs-p-sm)] text-muted-foreground italic">
+              Great artists steal.
+            </span>
           </div>
 
           {/* Navigation */}
@@ -43,13 +48,6 @@ export function Header() {
             activeTab={activeTab}
             onChange={(tab) => setActiveTab(tab as 'writer' | 'copycat')}
           />
-
-          {/* Domain badge */}
-          <div className="hidden sm:block">
-            <span className="text-[var(--fs-p-sm)] text-muted-foreground">
-              dictone.com
-            </span>
-          </div>
         </div>
       </div>
     </header>

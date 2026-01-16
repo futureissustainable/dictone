@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dictone - Lyrics Writing Tool",
-  description: "Write lyrics with rhyme scheme highlighting and discover bars from your favorite artists",
-  keywords: ["lyrics", "rhymes", "songwriting", "rap", "hip-hop", "rhyme scheme"],
-  authors: [{ name: "Dictone" }],
+  title: "DICTONE - Great artists steal.",
+  description: "Write lyrics with rhyme scheme highlighting and discover bars from your favorite artists. Great artists steal.",
+  keywords: ["lyrics", "rhymes", "songwriting", "rap", "hip-hop", "rhyme scheme", "copycat"],
+  authors: [{ name: "DICTONE" }],
   openGraph: {
-    title: "Dictone - Lyrics Writing Tool",
-    description: "Write lyrics with rhyme scheme highlighting and discover bars from your favorite artists",
+    title: "DICTONE - Great artists steal.",
+    description: "Write lyrics with rhyme scheme highlighting and discover bars from your favorite artists.",
     url: "https://dictone.com",
-    siteName: "Dictone",
+    siteName: "DICTONE",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dictone - Lyrics Writing Tool",
-    description: "Write lyrics with rhyme scheme highlighting and discover bars from your favorite artists",
+    title: "DICTONE - Great artists steal.",
+    description: "Write lyrics with rhyme scheme highlighting and discover bars from your favorite artists.",
   },
 };
 
