@@ -107,7 +107,7 @@ export function LyricsEditor() {
     }
   }, [selection, selectedScheme, accentLevel, lyrics, addRhymeWord]);
 
-  // Render the highlighted overlay
+  // Render the highlighted overlay - this shows ALL text with highlights applied
   const renderHighlightedText = useMemo(() => {
     if (!lyrics) return null;
 
@@ -118,10 +118,10 @@ export function LyricsEditor() {
     let lastIndex = 0;
 
     sortedWords.forEach((rhymeWord, idx) => {
-      // Add text before this highlight
+      // Add text before this highlight (in normal foreground color)
       if (rhymeWord.startIndex > lastIndex) {
         elements.push(
-          <span key={`text-${idx}`}>
+          <span key={`text-${idx}`} className="text-foreground">
             {lyrics.substring(lastIndex, rhymeWord.startIndex)}
           </span>
         );
@@ -134,7 +134,6 @@ export function LyricsEditor() {
       elements.push(
         <span
           key={`highlight-${idx}`}
-          onClick={(e) => handleHighlightClick(rhymeWord, e)}
           className="rhyme-highlight cursor-pointer relative group"
           style={{
             backgroundColor: color,
@@ -144,42 +143,40 @@ export function LyricsEditor() {
           title={`Scheme ${rhymeWord.scheme} - Click to remove`}
         >
           {lyrics.substring(rhymeWord.startIndex, rhymeWord.endIndex)}
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px]">
-            x
-          </span>
         </span>
       );
 
       lastIndex = rhymeWord.endIndex;
     });
 
-    // Add remaining text
+    // Add remaining text (in normal foreground color)
     if (lastIndex < lyrics.length) {
       elements.push(
-        <span key="text-end">{lyrics.substring(lastIndex)}</span>
+        <span key="text-end" className="text-foreground">
+          {lyrics.substring(lastIndex)}
+        </span>
       );
     }
 
     return elements;
-  }, [lyrics, rhymeWords, handleHighlightClick]);
+  }, [lyrics, rhymeWords]);
 
   return (
     <div className="relative h-full">
-      {/* Overlay for highlights */}
+      {/* Visible text overlay - shows text with highlights */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 p-4 pointer-events-none overflow-hidden whitespace-pre-wrap break-words"
+        className="absolute inset-0 p-4 overflow-auto whitespace-pre-wrap break-words pointer-events-none"
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
           lineHeight: '1.5',
-          color: 'transparent',
         }}
       >
         {renderHighlightedText}
       </div>
 
-      {/* Textarea */}
+      {/* Invisible textarea for input - text is transparent, only caret shows */}
       <textarea
         ref={textareaRef}
         value={lyrics}
@@ -194,21 +191,21 @@ Words with the same color are part of the same rhyme scheme."
         className="
           w-full h-full p-4 resize-none
           bg-transparent border-none outline-none
-          text-foreground caret-accent
           whitespace-pre-wrap break-words
+          relative z-10
         "
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
           lineHeight: '1.5',
-          color: 'var(--foreground)',
+          color: 'transparent',
           caretColor: 'var(--accent)',
         }}
       />
 
-      {/* Clickable overlay for highlighted words */}
+      {/* Clickable overlay for removing highlights */}
       <div
-        className="absolute inset-0 p-4 overflow-hidden pointer-events-none"
+        className="absolute inset-0 p-4 overflow-hidden pointer-events-none z-20"
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
@@ -240,7 +237,7 @@ Words with the same color are part of the same rhyme scheme."
       {/* Selection tooltip */}
       {showTooltip && selection && (
         <div
-          className="absolute z-10 bg-card border border-border rounded-lg shadow-xl p-2 animate-fade-in"
+          className="absolute z-30 bg-card border border-border rounded-lg shadow-xl p-2 animate-fade-in"
           style={{
             top: tooltipPosition.y + 8,
             left: Math.min(tooltipPosition.x, 200),
@@ -251,7 +248,7 @@ Words with the same color are part of the same rhyme scheme."
           </p>
           <button
             onClick={handleAddHighlight}
-            className="px-3 py-1.5 rounded bg-accent text-white text-[var(--fs-p-sm)] font-medium hover:bg-accent-hover transition-colors"
+            className="px-3 py-1.5 rounded bg-accent text-linen text-[var(--fs-p-sm)] font-medium hover:bg-accent-hover transition-colors"
           >
             Add to {selectedScheme}
           </button>

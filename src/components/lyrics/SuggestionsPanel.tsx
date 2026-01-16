@@ -94,7 +94,7 @@ export function SuggestionsPanel() {
             onClick={() => setActiveTab('rhymes')}
             className={`px-3 py-1.5 rounded text-[var(--fs-p-sm)] font-medium transition-colors ${
               activeTab === 'rhymes'
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-linen'
                 : 'bg-muted text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -104,7 +104,7 @@ export function SuggestionsPanel() {
             onClick={() => setActiveTab('slant')}
             className={`px-3 py-1.5 rounded text-[var(--fs-p-sm)] font-medium transition-colors ${
               activeTab === 'slant'
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-linen'
                 : 'bg-muted text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -122,7 +122,7 @@ export function SuggestionsPanel() {
                 onClick={() => setSyllableFilter(count)}
                 className={`px-2 py-1 rounded text-[var(--fs-p-sm)] transition-colors ${
                   syllableFilter === count
-                    ? 'bg-accent text-white'
+                    ? 'bg-accent text-linen'
                     : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}
               >

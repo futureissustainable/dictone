@@ -18,26 +18,41 @@
 }
 
 :root {
-  /* Colors */
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
-  --card: #18181b;
-  --card-hover: #1f1f23;
+  /* Brand Colors
+   * Stone Brown: #5f5449 - Primary accent, headings
+   * Dusty Taupe: #9b8269 - Secondary, hover states
+   * Khaki Beige: #afa193 - Muted text, subtle elements
+   * Dust Grey: #ddd4cc - Borders, cards, muted backgrounds
+   * Linen: #fcf3ea - Main background
+   */
 
-  /* Rhyme scheme colors */
-  --rhyme-a: #ef4444;
-  --rhyme-b: #3b82f6;
-  --rhyme-c: #22c55e;
-  --rhyme-d: #f59e0b;
-  --rhyme-e: #ec4899;
-  --rhyme-f: #06b6d4;
-  --rhyme-g: #8b5cf6;
-  --rhyme-h: #f97316;
+  /* Core Colors */
+  --background: #fcf3ea;
+  --foreground: #5f5449;
+  --accent: #5f5449;
+  --accent-hover: #9b8269;
+  --muted: #ddd4cc;
+  --muted-foreground: #9b8269;
+  --border: #ddd4cc;
+  --card: #ffffff;
+  --card-hover: #fcf3ea;
+
+  /* Brand palette (for direct access) */
+  --stone-brown: #5f5449;
+  --dusty-taupe: #9b8269;
+  --khaki-beige: #afa193;
+  --dust-grey: #ddd4cc;
+  --linen: #fcf3ea;
+
+  /* Rhyme scheme colors - adjusted for light theme */
+  --rhyme-a: #c0392b;
+  --rhyme-b: #2980b9;
+  --rhyme-c: #27ae60;
+  --rhyme-d: #d35400;
+  --rhyme-e: #8e44ad;
+  --rhyme-f: #16a085;
+  --rhyme-g: #5f5449;
+  --rhyme-h: #e67e22;
 
   /* Accent levels */
   --accent-normal: 0.4;
@@ -93,6 +108,13 @@
   --color-border: var(--border);
   --color-card: var(--card);
   --color-card-hover: var(--card-hover);
+
+  /* Brand colors */
+  --color-stone-brown: var(--stone-brown);
+  --color-dusty-taupe: var(--dusty-taupe);
+  --color-khaki-beige: var(--khaki-beige);
+  --color-dust-grey: var(--dust-grey);
+  --color-linen: var(--linen);
 
   --color-rhyme-a: var(--rhyme-a);
   --color-rhyme-b: var(--rhyme-b);
@@ -174,17 +196,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--muted);
+  background: var(--dust-grey);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
+  background: var(--khaki-beige);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+  background: var(--dusty-taupe);
 }
 
 /* Rhyme highlight styles */
@@ -196,7 +218,7 @@ body {
 }
 
 .rhyme-highlight:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.1);
 }
 
 /* Accent level modifiers */
@@ -206,13 +228,13 @@ body {
 
 /* Selection styling */
 ::selection {
-  background: var(--accent);
-  color: white;
+  background: var(--stone-brown);
+  color: var(--linen);
 }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--dusty-taupe);
   outline-offset: 2px;
 }
 

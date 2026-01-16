@@ -82,7 +82,7 @@ export function SchemeBadge({
         font-bold text-[var(--fs-p-sm)]
         transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)]
         ${schemeColors[scheme]}
-        ${selected ? 'ring-2 ring-white ring-offset-2 ring-offset-background' : 'opacity-60 hover:opacity-100'}
+        ${selected ? 'ring-2 ring-stone-brown ring-offset-2 ring-offset-background' : 'opacity-60 hover:opacity-100'}
       `}
     >
       {scheme}

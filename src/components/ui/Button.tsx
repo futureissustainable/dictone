@@ -25,8 +25,8 @@ export function Button({
   `;
 
   const variants = {
-    primary: 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98]',
-    secondary: 'bg-muted text-foreground hover:bg-card-hover active:scale-[0.98]',
+    primary: 'bg-accent text-linen hover:bg-accent-hover active:scale-[0.98]',
+    secondary: 'bg-muted text-foreground hover:bg-dust-grey active:scale-[0.98]',
     ghost: 'bg-transparent text-foreground hover:bg-muted active:scale-[0.98]',
     outline: 'border border-border bg-transparent text-foreground hover:bg-muted active:scale-[0.98]',
   };

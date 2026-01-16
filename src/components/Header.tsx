@@ -29,7 +29,7 @@ export function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-                <span className="text-white font-bold text-xl" style={{ fontFamily: 'var(--font-headline)' }}>
+                <span className="text-linen font-bold text-xl" style={{ fontFamily: 'var(--font-headline)' }}>
                   D
                 </span>
               </div>
