@@ -171,9 +171,16 @@ export async function fetchArtistLyrics(_artist: string): Promise<string | null>
 
 export async function fetchSongLyrics(artist: string, song: string): Promise<string | null> {
   try {
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     const response = await fetch(
-      `${LYRICS_OVH_API}/${encodeURIComponent(artist)}/${encodeURIComponent(song)}`
+      `${LYRICS_OVH_API}/${encodeURIComponent(artist)}/${encodeURIComponent(song)}`,
+      { signal: controller.signal }
     );
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       return null;
@@ -182,7 +189,7 @@ export async function fetchSongLyrics(artist: string, song: string): Promise<str
     const data = await response.json();
     return data.lyrics || null;
   } catch (error) {
-    console.error('Error fetching song lyrics:', error);
+    // Silently fail on timeout or network errors
     return null;
   }
 }
@@ -196,29 +203,62 @@ export async function searchLyricsForWord(
   const results: ArtistLyric[] = [];
   const wordRegex = new RegExp(`\\b${word}\\b`, 'i');
 
-  for (const song of songs) {
-    try {
-      const lyrics = await fetchSongLyrics(artist, song);
-      if (!lyrics) continue;
+  // Fetch all songs in parallel with a batch limit
+  const batchSize = 5; // Process 5 songs at a time
+  const batches: string[][] = [];
 
-      const lines = lyrics.split('\n');
-      for (const line of lines) {
-        if (wordRegex.test(line)) {
-          results.push({
-            artist,
-            song,
-            line: line.trim(),
-            matchedWord: word,
-          });
+  for (let i = 0; i < songs.length; i += batchSize) {
+    batches.push(songs.slice(i, i + batchSize));
+  }
+
+  for (const batch of batches) {
+    const batchResults = await Promise.all(
+      batch.map(async (song) => {
+        try {
+          const lyrics = await fetchSongLyrics(artist, song);
+          if (!lyrics) return [];
+
+          const lines = lyrics.split('\n');
+          const matches: ArtistLyric[] = [];
+
+          for (const line of lines) {
+            const trimmedLine = line.trim();
+            // Skip empty lines and section headers like [Verse 1]
+            if (!trimmedLine || trimmedLine.startsWith('[')) continue;
+
+            if (wordRegex.test(trimmedLine)) {
+              matches.push({
+                artist,
+                song,
+                line: trimmedLine,
+                matchedWord: word,
+              });
+            }
+          }
+
+          return matches;
+        } catch {
+          return [];
         }
-      }
-    } catch {
-      // Skip failed requests
-      continue;
+      })
+    );
+
+    results.push(...batchResults.flat());
+
+    // If we have enough results, stop early
+    if (results.length >= 20) {
+      break;
     }
   }
 
-  return results;
+  // Limit results and deduplicate
+  const seen = new Set<string>();
+  return results.filter(r => {
+    const key = r.line.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 30);
 }
 
 // Alternative: Use Genius API hints (for song discovery)
