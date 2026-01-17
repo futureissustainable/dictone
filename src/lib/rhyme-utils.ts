@@ -1,5 +1,73 @@
 import type { RhymeWord, RhymeSchemeColor, AccentLevel, LineWord } from './types';
 
+// Check if a position is inside brackets [like this]
+export function isInsideBrackets(text: string, position: number): boolean {
+  let depth = 0;
+  for (let i = 0; i < position && i < text.length; i++) {
+    if (text[i] === '[') depth++;
+    else if (text[i] === ']') depth--;
+  }
+  return depth > 0;
+}
+
+// Get all bracket regions in text
+export function getBracketRegions(text: string): Array<{ start: number; end: number }> {
+  const regions: Array<{ start: number; end: number }> = [];
+  let start = -1;
+
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '[' && start === -1) {
+      start = i;
+    } else if (text[i] === ']' && start !== -1) {
+      regions.push({ start, end: i + 1 });
+      start = -1;
+    }
+  }
+
+  return regions;
+}
+
+// Recalculate rhyme word indices when text changes
+export function recalculateRhymeWordIndices(
+  oldText: string,
+  newText: string,
+  rhymeWords: RhymeWord[]
+): RhymeWord[] {
+  if (oldText === newText) return rhymeWords;
+
+  return rhymeWords.map(rw => {
+    // Get the original word from old text
+    const originalWord = oldText.substring(rw.startIndex, rw.endIndex);
+
+    // Try to find the same word in the new text around the same position
+    // First check if it's still at the same position
+    const wordAtSamePos = newText.substring(rw.startIndex, rw.startIndex + originalWord.length);
+    if (wordAtSamePos === originalWord) {
+      return { ...rw, endIndex: rw.startIndex + originalWord.length };
+    }
+
+    // Search nearby for the word (within a reasonable range)
+    const searchStart = Math.max(0, rw.startIndex - 50);
+    const searchEnd = Math.min(newText.length, rw.startIndex + 50);
+    const searchRegion = newText.substring(searchStart, searchEnd);
+
+    const wordRegex = new RegExp(`\\b${originalWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    const match = searchRegion.match(wordRegex);
+
+    if (match && match.index !== undefined) {
+      const newStartIndex = searchStart + match.index;
+      return {
+        ...rw,
+        startIndex: newStartIndex,
+        endIndex: newStartIndex + originalWord.length,
+      };
+    }
+
+    // Word not found nearby - mark as invalid by returning with negative index
+    return { ...rw, startIndex: -1, endIndex: -1 };
+  }).filter(rw => rw.startIndex >= 0); // Remove invalid entries
+}
+
 // Get ending phonemes from a word (simplified approach)
 function getEndingSound(word: string): string {
   const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
@@ -128,15 +196,30 @@ export function countSyllables(word: string): number {
 }
 
 // Auto-detect rhyme schemes in lyrics - checks ALL words, not just line endings
+// sensitivity: 1.0 = loose (more matches), 3.0 = strict (fewer, better matches)
 export function detectRhymeSchemes(
   lyrics: string,
-  existingSchemes: RhymeWord[] = []
+  existingSchemes: RhymeWord[] = [],
+  sensitivity: number = 2.0
 ): RhymeWord[] {
   if (!lyrics.trim()) return existingSchemes.filter(s => s.isManual);
 
   const schemes: RhymeWord[] = [...existingSchemes.filter(s => s.isManual)];
-  const availableSchemes: RhymeSchemeColor[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  const availableSchemes: RhymeSchemeColor[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
   let nextSchemeIndex = 0;
+
+  // Get bracket regions to exclude
+  const bracketRegions = getBracketRegions(lyrics);
+
+  // Check if a position is inside any bracket region
+  const isInBrackets = (start: number, end: number) => {
+    return bracketRegions.some(region => start >= region.start && end <= region.end);
+  };
+
+  // Minimum rhyme strength threshold based on sensitivity
+  // sensitivity 1.0 -> threshold 0.2 (loose)
+  // sensitivity 3.0 -> threshold 0.6 (strict)
+  const minStrengthThreshold = 0.1 + (sensitivity - 1.0) * 0.25;
 
   // Extract ALL words with their global positions
   const allWords: { word: string; startIndex: number; endIndex: number; lineIndex: number }[] = [];
@@ -146,18 +229,27 @@ export function detectRhymeSchemes(
   lines.forEach((line, lineIndex) => {
     const lineWords = extractWords(line);
     lineWords.forEach((w) => {
-      allWords.push({
-        word: w.word,
-        startIndex: globalOffset + w.startIndex,
-        endIndex: globalOffset + w.endIndex,
-        lineIndex,
-      });
+      const globalStart = globalOffset + w.startIndex;
+      const globalEnd = globalOffset + w.endIndex;
+
+      // Skip words inside brackets
+      if (!isInBrackets(globalStart, globalEnd)) {
+        allWords.push({
+          word: w.word,
+          startIndex: globalStart,
+          endIndex: globalEnd,
+          lineIndex,
+        });
+      }
     });
     globalOffset += line.length + 1; // +1 for newline
   });
 
   // Track which words have been assigned to a scheme
   const assigned = new Set<number>();
+
+  // Minimum word length based on sensitivity
+  const minWordLength = Math.max(2, Math.floor(sensitivity + 1));
 
   // Group rhyming words
   for (let i = 0; i < allWords.length && nextSchemeIndex < availableSchemes.length; i++) {
@@ -166,7 +258,7 @@ export function detectRhymeSchemes(
     const word1 = allWords[i];
 
     // Skip very short words for auto-detection
-    if (word1.word.length < 3) continue;
+    if (word1.word.length < minWordLength) continue;
 
     // Find all words that rhyme with this one
     const rhymingIndices: number[] = [i];
@@ -177,9 +269,10 @@ export function detectRhymeSchemes(
       const word2 = allWords[j];
 
       // Skip very short words
-      if (word2.word.length < 3) continue;
+      if (word2.word.length < minWordLength) continue;
 
-      if (wordsRhyme(word1.word, word2.word)) {
+      const strength = calculateRhymeStrength(word1.word, word2.word);
+      if (strength >= minStrengthThreshold && wordsRhyme(word1.word, word2.word)) {
         rhymingIndices.push(j);
       }
     }

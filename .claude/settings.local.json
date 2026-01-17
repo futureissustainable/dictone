@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(npm install:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)",
+      "Bash(netstat:*)",
+      "Bash(cmd //c \"taskkill /F /PID 31156\")",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title \"feat: Add UI improvements and Word Helper panel\" --body \"$\\(cat <<''EOF''\n## Summary\n- Rename Lyrics Writer to Notepad with Mondwest font styling\n- Add Word Helper panel on right side showing rhymes, near rhymes, and synonyms for selected words\n- Add syllable count per line displayed on right margin\n- Add sensitivity slider for rhyme detection \\(1-3 range\\)\n- Add View All modal with rhyme scores \\(0-100\\)\n- Ignore bracketed content `[like this]` for rhymes and syllable counts\n- Gray out bracketed annotations visually\n- Replace context menu with simple \"Mark as X\" popup in manual mode\n- Add synonyms tab to word suggestions\n\n## Test plan\n- [ ] Select a word in the notepad and verify Word Helper panel shows rhymes\n- [ ] Test syllable counts appear on right side of each line\n- [ ] Verify bracketed content is grayed out and excluded from syllable count\n- [ ] Test the sensitivity slider adjusts rhyme detection threshold\n- [ ] Test \"Mark as X\" context menu appears when selecting word in manual mode\n- [ ] Verify View All modal shows complete rhyme list with scores\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\" --base main)",
+      "Bash(git stash:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

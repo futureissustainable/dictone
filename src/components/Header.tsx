@@ -11,13 +11,15 @@ export function Header() {
   const tabs = [
     {
       id: 'writer',
-      label: 'Lyrics Writer',
+      label: 'Notepad',
       icon: <PencilSimple size={18} weight="bold" />,
+      useHeadlineFont: true,
     },
     {
       id: 'copycat',
-      label: 'COPYCAT',
+      label: 'Copycat',
       icon: <Copy size={18} weight="bold" />,
+      useHeadlineFont: true,
     },
   ];
 
