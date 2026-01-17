@@ -237,7 +237,7 @@ export function LyricsEditor() {
             fontFamily: 'var(--font-body)',
             fontSize: 'var(--fs-p-lg)',
             lineHeight: '1.5',
-            width: 'calc(100% - 72px)', // 16px left padding + 56px right padding (pr-14)
+            width: 'calc(100% - 32px)',
             wordWrap: 'break-word',
             overflowWrap: 'break-word',
           }}
@@ -299,7 +299,7 @@ Words with the same color are part of the same rhyme scheme.
 
 Use [brackets] for annotations - they won't count toward rhymes."
           className="
-            w-full h-full p-4 pr-14 resize-none
+            w-full h-full p-4 resize-none
             bg-transparent border-none outline-none
             whitespace-pre-wrap break-words
             relative
