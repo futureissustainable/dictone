@@ -237,7 +237,7 @@ export function LyricsEditor() {
             fontFamily: 'var(--font-body)',
             fontSize: 'var(--fs-p-lg)',
             lineHeight: '1.5',
-            width: 'calc(100% - 32px)',
+            width: 'calc(100% - 72px)', // 16px left padding + 56px right padding (pr-14)
             wordWrap: 'break-word',
             overflowWrap: 'break-word',
           }}
