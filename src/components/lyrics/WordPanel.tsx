@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/store';
-import { fetchRhymes, fetchSoundsLike, fetchSynonyms, fetchAllRhymesWithScores } from '@/lib/api';
-import type { RhymeSuggestion, RhymeSchemeColor, RhymeWithScore } from '@/lib/types';
+import { fetchRhymes, fetchSoundsLike, fetchSynonyms } from '@/lib/api';
+import type { RhymeSuggestion } from '@/lib/types';
 import { SpinnerGap, MusicNote, Waveform, BookOpen, Copy, Check, Plus, ArrowsOut, TextAa } from '@phosphor-icons/react';
 import { RhymesModal } from './RhymesModal';
 
