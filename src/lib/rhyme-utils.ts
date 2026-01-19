@@ -92,7 +92,7 @@ function getPhoneticEnd(word: string): string {
 
 
 // Check if two words rhyme based on their phonetic endings
-// Returns a score: 0 = no rhyme, 1 = weak, 2 = medium, 3 = strong, 4 = very strong, 5 = perfect
+// Returns a score: 0 = no rhyme, 1 = weak, 2 = medium, 3 = strong, 4+ = very strong, 5 = perfect
 export function getRhymeScore(word1: string, word2: string): number {
   const clean1 = word1.toLowerCase().replace(/[^a-z]/g, '');
   const clean2 = word2.toLowerCase().replace(/[^a-z]/g, '');
@@ -111,8 +111,8 @@ export function getRhymeScore(word1: string, word2: string): number {
   if (phonetic1 === phonetic2) {
     // Longer phonetic matches are stronger rhymes
     if (phonetic1.length >= 3) return 5;
-    if (phonetic1.length === 2) return 4;
-    return 3;
+    if (phonetic1.length === 2) return 4.5; // Was 4 - spread out the 4.x range
+    return 3.5;
   }
 
   // Check if endings differ only in the final consonant (slant rhyme)
@@ -128,10 +128,15 @@ export function getRhymeScore(word1: string, word2: string): number {
     if (cons1 === cons2) return 5;
 
     // Same vowel, similar ending consonant (one is subset of other)
-    if (cons1.endsWith(cons2) || cons2.endsWith(cons1)) return 4;
+    // More granular: closer lengths = stronger rhyme
+    if (cons1.endsWith(cons2) || cons2.endsWith(cons1)) {
+      const lenDiff = Math.abs(cons1.length - cons2.length);
+      if (lenDiff === 1) return 4.25; // Very close (e.g., "t" vs "st")
+      return 4; // Larger difference
+    }
 
     // Same vowel, ending consonants share last sound
-    if (cons1.length > 0 && cons2.length > 0 && cons1.slice(-1) === cons2.slice(-1)) return 3.5;
+    if (cons1.length > 0 && cons2.length > 0 && cons1.slice(-1) === cons2.slice(-1)) return 3.75;
 
     // Same vowel, different consonants but close sounds
     // s/z, t/d, p/b, k/g are similar
@@ -140,7 +145,7 @@ export function getRhymeScore(word1: string, word2: string): number {
     const lastCons2 = cons2.slice(-1);
     for (const [a, b] of similarPairs) {
       if ((lastCons1 === a && lastCons2 === b) || (lastCons1 === b && lastCons2 === a)) {
-        return 3;
+        return 3.25;
       }
     }
 
