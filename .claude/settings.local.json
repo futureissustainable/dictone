@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(npm install:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)",
+      "Bash(netstat:*)",
+      "Bash(cmd //c \"taskkill /F /PID 31156\")",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(dir:*)",
+      "Bash(node test-rhymes.mjs:*)"
+    ]
+  }
+}
