@@ -293,7 +293,7 @@ export function LyricsEditor() {
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--fs-p-lg)',
           lineHeight: `${lineHeightPx}px`,
-          width: 'calc(100% - 64px)', // Account for textarea padding (16px left + 48px right for syllable counts)
+          width: 'calc(100% - 72px)', // Account for textarea padding (16px left + 48px right) + 8px scrollbar
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
         }}
@@ -369,7 +369,7 @@ Use [brackets] for annotations - they won't count in syllables."
           w-full h-full p-4 pr-12 resize-none
           bg-transparent border-none outline-none
           whitespace-pre-wrap break-words
-          relative
+          relative overflow-y-scroll
         "
         style={{
           fontFamily: 'var(--font-body)',
